@@ -1,10 +1,12 @@
--- Organizing Id Count
+-- Not all participants participated in each "tracker" type. Verifying participant count by totalling the Ids
 
 SELECT COUNT (DISTINCT Id) AS activity_id_count
 FROM `bellabeat-capstone-367917.367917.activity`;
+## "There is no data to display"
 
 
--- looking for null cells in files to be used
+
+-- Finding any null cells in files to be used
 
 SELECT *
 FROM `bellabeat-capstone-367917.367917.activity`
@@ -60,7 +62,9 @@ WHERE Calories is NULL
 ;
 
 
--- Looking for outliers
+
+
+-- Looking for outliers in our data
 SELECT *
 FROM `bellabeat-capstone-367917.367917.activity`
 ORDER BY TotalSteps desc
@@ -69,6 +73,9 @@ SELECT *
 FROM `bellabeat-capstone-367917.367917.activity`
 ORDER BY TotalSteps asc
 ;
+## "There is no data to display"
+
+
 
 -- Searching for Duplicates
 
@@ -107,29 +114,42 @@ HAVING COUNT(id) >1;
 
 --------------------------------------------------------------------------------------------------------
 -- Looking for days that may not have shown any activity
+-- In theory that they just did not put on their fitbit tracker that day
+
 SELECT *
 FROM `bellabeat-capstone-367917.367917.activity` 
 WHERE Calories = 0;
-##We find 4 days from 4 different users registered no calories or activity, only the alloted sedentary active minutes 1440 which means the fitbit did not move
+
+## We find 4 days from 4 different users registered no calories or activity, only the alloted sedentary active minutes 1440 which means the fitbit did not move
 
 
 -- We are looking to see if there were days the fitbit was not on at all. 33 users with 31 days should have 1023 dates logged
+-- If these days do not align the fitbit was probably out of battery.
+
 SELECT COUNT(Id) AS Total_Number_of_IDs_Logged,
 COUNT(ActivityDate) AS Total_Dates_Logged,
 COUNT(DISTINCT Id) AS Disctinct_Number_of_Ids,
 COUNT(DISTINCT ActivityDate) AS Distinct_Number_of_Days
 FROM `bellabeat-capstone-367917.367917.activity`;
-## We find that only 940 of the 1023 days were logged so the Number of days logged affects averages. 
+## We find that only 940 of the 1023 days were logged confirming the Fitbit was not charged during the entire survey, so the Number of days logged affects averages. 
 
--- We need to know how many days each participant logged
+-- To find our averages its important to find how many days each participant did log.
+
+
 SELECT Id,
 COUNT(*) AS Number_of_Days_Logged
 FROM `bellabeat-capstone-367917.367917.activity` As Activity_Dates_Counted_for_Id_Logs
 GROUP BY Id
 ORDER BY COUNT(*);
+
+
 ## We can see that 12 logged under the 31 day mark which was the complete length of the series
 
--- We need to know the Averages of each participant, which we will find by their activity divided by the number of days they particpated
+
+
+-- Finding the averages of each type of activity tracked
+--This will show us the optimal way of tracking
+
 SELECT ARRAY_AGG(DISTINCT ActivitySummaryAveraged.Id) AS Identification,
 ARRAY_AGG(DISTINCT Number_of_Days_Logged) AS LoggedTotals,
 SUM((TotalSteps) / (Number_of_Days_Logged)) AS Steps,
